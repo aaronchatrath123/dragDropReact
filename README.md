@@ -733,139 +733,70 @@ const Settings = ({ selectedWidgets }: SettingsProps) => {
 export default Settings;
 ```
 
-```
-import { Box, Typography, Paper, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import ShowChartIcon from '@mui/icons-material/ShowChart';
-import PieChartIcon from '@mui/icons-material/PieChart';
-import BubbleChartIcon from '@mui/icons-material/BubbleChart';
-import TimelineIcon from '@mui/icons-material/Timeline';
+```tsx
+import { Box, Paper } from '@mui/material';
+import type { ReactNode } from 'react';
 
-// Define Widget interface representing each available widget
-interface Widget {
-  type: 'AreaChart' | 'ScatterPlot' | 'PieChart' | 'BubbleChart' | 'BarChart';
-  label: string;
-  icon: React.ReactNode;
-  description: string;
+interface MainContainerProps {
+  settingsContent: ReactNode;
+  displayContent: ReactNode;
 }
 
-interface SettingsProps {
-  selectedWidgets: Set<Widget['type']>;
-}
-
-const Settings = ({ selectedWidgets }: SettingsProps) => {
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, widgetType: Widget['type']) => {
-    if (selectedWidgets.has(widgetType)) {
-      e.preventDefault();
-      return;
-    }
-    e.dataTransfer.setData('widget', widgetType);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const widgets: Widget[] = [
-    {
-      type: 'AreaChart',
-      label: 'Area Chart',
-      icon: <TimelineIcon />,
-      description: 'Visualize data trends over time with a filled area'
-    },
-    {
-      type: 'ScatterPlot',
-      label: 'Scatter Plot',
-      icon: <ShowChartIcon />,
-      description: 'Display relationships between two variables'
-    },
-    {
-      type: 'PieChart',
-      label: 'Pie Chart',
-      icon: <PieChartIcon />,
-      description: 'Show proportional data as slices of a circle'
-    },
-    {
-      type: 'BubbleChart',
-      label: 'Bubble Chart',
-      icon: <BubbleChartIcon />,
-      description: 'Represent three dimensions of data with size and position'
-    },
-    {
-      type: 'BarChart',
-      label: 'Bar Chart',
-      icon: <BarChartIcon />,
-      description: 'Compare values across categories'
-    }
-  ];
-
+const MainContainer = ({ settingsContent, displayContent }: MainContainerProps) => {
   return (
     <Box
       sx={{
-        height: '100%',
         display: 'flex',
-        flexDirection: 'column'
+        width: '100vw',
+        height: '100vh',
+        gap: 3,
+        p: 3,
+        backgroundColor: '#f0f2f5',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
       }}
     >
-      <Typography variant="h6" gutterBottom>
-        Available Widgets
-      </Typography>
-      <List
+      {/* Display Component (Left Side - 75%) */}
+      <Paper
+        elevation={2}
         sx={{
-          flex: 1,
-          overflowY: 'auto',
-          '&::-webkit-scrollbar': {
-            width: '8px',
-          },
-          '&::-webkit-scrollbar-track': {
-            background: '#f1f1f1',
-            borderRadius: '4px',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: '#888',
-            borderRadius: '4px',
-            '&:hover': {
-              background: '#666',
-            },
-          },
+          flex: 3,
+          p: 2,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100%',
+          backgroundColor: '#ffffff',
+          width: 0, // This forces the flex sizing to work properly
         }}
       >
-        {widgets.map((widget) => {
-          const isSelected = selectedWidgets.has(widget.type);
-          return (
-            <ListItem
-              key={widget.type}
-              draggable={!isSelected}
-              onDragStart={(e) => handleDragStart(e, widget.type)}
-              component={Paper}
-              sx={{
-                mb: 2,
-                cursor: isSelected ? 'not-allowed' : 'grab',
-                opacity: isSelected ? 0.5 : 1,
-                backgroundColor: isSelected ? 'action.disabledBackground' : 'background.paper',
-                '&:hover': !isSelected ? {
-                  backgroundColor: 'action.hover',
-                  transform: 'translateY(-2px)',
-                } : {},
-                transition: 'all 0.2s ease',
-                borderRadius: 1,
-              }}
-            >
-              <ListItemIcon sx={{ color: isSelected ? 'action.disabled' : 'primary.main' }}>
-                {widget.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={widget.label}
-                secondary={isSelected ? 'Already added to dashboard' : widget.description}
-                primaryTypographyProps={{
-                  fontWeight: 'medium',
-                  color: isSelected ? 'text.disabled' : 'text.primary'
-                }}
-              />
-            </ListItem>
-          );
-        })}
-      </List>
+        {displayContent}
+      </Paper>
+
+      {/* Settings Component (Right Side - 25%) */}
+      <Paper
+        elevation={2}
+        sx={{
+          flex: 1,
+          p: 2,
+          overflow: 'auto',
+          minHeight: '100%',
+          backgroundColor: '#ffffff',
+          minWidth: '250px',
+          maxWidth: '400px',
+          width: 0, // This forces the flex sizing to work properly
+        }}
+      >
+        {settingsContent}
+      </Paper>
     </Box>
   );
 };
 
-export default Settings;
+export default MainContainer; 
 ```
