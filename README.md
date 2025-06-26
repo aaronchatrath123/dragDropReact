@@ -800,3 +800,126 @@ const MainContainer = ({ settingsContent, displayContent }: MainContainerProps) 
 
 export default MainContainer; 
 ```
+
+```
+import { useEffect, useRef } from 'react';
+import * as d3 from 'd3';
+
+const AreaChartWidget = () => {
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    // Clear previous chart
+    d3.select(svgRef.current).selectAll('*').remove();
+
+    // Sample data
+    const data = Array.from({ length: 20 }, (_, i) => ({
+      x: i,
+      y: Math.random() * 100 + 20
+    }));
+
+    // Get container dimensions
+    const container = svgRef.current.parentElement;
+    if (!container) return;
+    
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+    const innerWidth = width - margin.left - margin.right;
+    const innerHeight = height - margin.top - margin.bottom;
+
+    // Create scales
+    const x = d3.scaleLinear()
+      .domain([0, d3.max(data, d => d.x) || 0])
+      .range([0, innerWidth]);
+
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(data, d => d.y) || 0])
+      .range([innerHeight, 0]);
+
+    // Create area generator
+    const area = d3.area<{ x: number; y: number }>()
+      .x(d => x(d.x))
+      .y0(innerHeight)
+      .y1(d => y(d.y))
+      .curve(d3.curveMonotoneX);
+
+    // Create SVG
+    const svg = d3.select(svgRef.current)
+      .attr('width', width)
+      .attr('height', height);
+
+    const g = svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Add area path
+    g.append('path')
+      .datum(data)
+      .attr('class', 'area')
+      .attr('d', area)
+      .attr('fill', '#4fc3f7')
+      .attr('opacity', 0.6);
+
+    // Add axes
+    const xAxis = g.append('g')
+      .attr('class', 'x-axis')
+      .attr('transform', `translate(0,${innerHeight})`);
+    
+    const yAxis = g.append('g')
+      .attr('class', 'y-axis');
+
+    xAxis.call(d3.axisBottom(x) as any);
+    yAxis.call(d3.axisLeft(y) as any);
+
+    // Add resize handler
+    const handleResize = () => {
+      if (!container) return;
+      
+      const newWidth = container.clientWidth;
+      const newHeight = container.clientHeight;
+      const newInnerWidth = newWidth - margin.left - margin.right;
+      const newInnerHeight = newHeight - margin.top - margin.bottom;
+
+      // Update scales
+      x.range([0, newInnerWidth]);
+      y.range([newInnerHeight, 0]);
+
+      // Update SVG
+      svg.attr('width', newWidth)
+         .attr('height', newHeight);
+
+      // Update area
+      area.y0(newInnerHeight);
+
+      // Update path
+      g.select('.area')
+        .attr('d', area(data));
+
+      // Update axes
+      g.select('.x-axis')
+        .attr('transform', `translate(0,${newInnerHeight})`)
+        .call(d3.axisBottom(x) as any);
+
+      g.select('.y-axis')
+        .call(d3.axisLeft(y) as any);
+    };
+
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(container);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
+  return (
+    <div style={{ width: '100%', height: '100%' }}>
+      <svg ref={svgRef} style={{ width: '100%', height: '100%' }}></svg>
+    </div>
+  );
+};
+
+export default AreaChartWidget;
+```
