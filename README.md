@@ -1,5 +1,73 @@
 ```tsx
+   <Box className={`settings-container ${isExpanded ? 'expanded' : 'collapsed'}`}>
+      <Box className={`settings-expanded-panel ${isExpanded ? 'expanded' : 'collapsed'}`}>
+        <Box className={`settings-header ${isExpanded ? 'expanded' : 'collapsed'}`}>
+          <IconButton
+            onClick={() => setIsExpanded(false)}
+            size="small"
+            className="collapse-button"
+          >
+            <ArrowForwardIosIcon sx={{ fontSize: 18 }} />
+          </IconButton>
+          <Typography variant="h6">
+            Available Widgets
+          </Typography>
+        </Box>
 
+        <List className="widget-list">
+          {widgets.map((widget, index) => {
+            const isSelected = selectedWidgets.has(widget.type);
+            return (
+              <ListItem
+                key={widget.type}
+                draggable={!isSelected}
+                onDragStart={(e) => handleDragStart(e, widget.type)}
+                component={Paper}
+                className={`widget-list-item ${isSelected ? 'selected' : ''} ${!isExpanded ? 'collapsed' : ''}`}
+                style={{ transitionDelay: `${index * 0.05}s` }}
+              >
+                <ListItemIcon className={`widget-icon ${isSelected ? 'selected' : ''}`}>
+                  {widget.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={widget.label}
+                  secondary={isSelected ? 'Already added to dashboard' : widget.description}
+                  primaryTypographyProps={{
+                    fontWeight: 'medium',
+                    color: isSelected ? 'text.disabled' : 'text.primary'
+                  }}
+                />
+              </ListItem>
+            );
+          })}
+        </List>
+      </Box>
+
+      <Box className={`settings-collapsed-panel ${isExpanded ? 'expanded' : 'collapsed'}`}>
+        <IconButton
+          onClick={() => setIsExpanded(true)}
+          size="small"
+          className={`expand-button ${isExpanded ? 'expanded' : 'collapsed'}`}
+        >
+          <ArrowBackIosNewIcon sx={{ fontSize: 20 }} />
+        </IconButton>
+
+        <Box className="collapsed-widgets-container">
+          {widgets.map((widget, index) => {
+            const isSelected = selectedWidgets.has(widget.type);
+            return (
+              <Box
+                key={widget.type}
+                className={`${isExpanded ? 'expanded' : 'collapsed'}`}
+                style={{ transitionDelay: `${index * 0.05}s` }}
+              >
+                {renderTooltip(widget, isSelected)}
+              </Box>
+            );
+          })}
+        </Box>
+      </Box>
+    </Box>
 
 ```
 
