@@ -1,4 +1,17 @@
 ```tsx
+const simulateWidgetDrop = () => {
+    const dataTransfer = new DataTransfer()
+    Object.defineProperty(dataTransfer, 'getData', {
+      value: (type: string) => type === 'widget' ? 'AreaChart' : ''
+    })
+
+    cy.get('[data-cy="display-container"]')
+      .trigger('drop', { dataTransfer })
+      .wait(500) // Wait for drop to process
+  }
+```
+
+```tsx
 // Helper function to handle drag and drop
   const performDragAndDrop = () => {
     const mockDataTransfer = {
