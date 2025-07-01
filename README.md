@@ -1,4 +1,15 @@
 ```tsx
+
+ <div 
+            data-cy="drag-source" 
+            style={{ 
+              width: '100px', 
+              height: '100px', 
+              position: 'absolute',
+              top: 0,
+              left: 0 
+            }}
+          />
   const mockDataTransfer = {
       getData: (key: string) => key === 'widget' ? 'AreaChart' : '',
       setData: (type: string, value: string) => {},
