@@ -1,4 +1,51 @@
 ```tsx
+// Helper function to handle drag and drop
+  const performDragAndDrop = () => {
+    const mockDataTransfer = {
+      getData: (key: string) => key === 'widget' ? 'AreaChart' : '',
+      setData: (type: string, value: string) => {},
+      effectAllowed: 'move',
+      dropEffect: 'move',
+      types: ['widget'],
+      items: [],
+      files: [],
+      clearData: () => {}
+    }
+
+    // Show drag source and start drag
+    cy.get('[data-cy="drag-source"]')
+      .invoke('show')
+      .trigger('mousedown')
+      .trigger('dragstart', {
+        dataTransfer: {
+          ...mockDataTransfer,
+          setData: (type: string, value: string) => {
+            expect(type).to.equal('widget')
+            expect(value).to.equal('AreaChart')
+          }
+        }
+      })
+
+    // Move to drop target and drop
+    cy.get('[data-cy="display-container"]')
+      .trigger('dragenter', { dataTransfer: mockDataTransfer })
+      .trigger('dragover', { 
+        dataTransfer: mockDataTransfer,
+        clientX: 100,
+        clientY: 100
+      })
+      .trigger('drop', { dataTransfer: mockDataTransfer })
+
+    // End drag and hide source
+    cy.get('[data-cy="drag-source"]')
+      .trigger('dragend', { dataTransfer: mockDataTransfer })
+      .invoke('hide')
+      .wait(500) // Wait for drop to process
+  }
+
+```
+
+```tsx
 
  <div 
             data-cy="drag-source" 
