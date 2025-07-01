@@ -1,31 +1,41 @@
 ```tsx
- // First add a widget with complete drag sequence
-    cy.get('[data-cy="display-container"]')
-      .should('be.visible')
+  const mockDataTransfer = {
+      getData: (key: string) => key === 'widget' ? 'AreaChart' : '',
+      setData: (type: string, value: string) => {},
+      effectAllowed: 'move',
+      dropEffect: 'move',
+      types: ['widget'],
+      items: [],
+      files: [],
+      clearData: () => {}
+    }
+
+    // Start drag from source
+    cy.get('[data-cy="drag-source"]')
+      .trigger('mousedown')
       .trigger('dragstart', {
-        dataTransfer: mockDataTransfer,
-        force: true
+        dataTransfer: {
+          ...mockDataTransfer,
+          setData: (type: string, value: string) => {
+            expect(type).to.equal('widget')
+            expect(value).to.equal('AreaChart')
+          }
+        }
       })
-      .trigger('dragenter', {
-        dataTransfer: mockDataTransfer,
-        force: true
-      })
+
+    // Move to drop target and drop
+    cy.get('[data-cy="display-container"]')
+      .trigger('dragenter', { dataTransfer: mockDataTransfer })
       .trigger('dragover', { 
         dataTransfer: mockDataTransfer,
         clientX: 100,
-        clientY: 100,
-        force: true
+        clientY: 100
       })
-      .trigger('drop', { 
-        dataTransfer: mockDataTransfer,
-        clientX: 100,
-        clientY: 100,
-        force: true
-      })
-      .trigger('dragend', {
-        dataTransfer: mockDataTransfer,
-        force: true
-      })
+      .trigger('drop', { dataTransfer: mockDataTransfer })
+
+    // End drag on source
+    cy.get('[data-cy="drag-source"]')
+      .trigger('dragend', { dataTransfer: mockDataTransfer })
       .wait(500) // Wait for widget to be added
 
     // Find the widget and trigger hover
@@ -56,6 +66,7 @@
     cy.get('[data-cy="empty-state"]')
       .should('be.visible')
   })
+   
 
 ```
 
