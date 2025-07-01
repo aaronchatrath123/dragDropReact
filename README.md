@@ -1,4 +1,65 @@
 ```tsx
+ // First add a widget with complete drag sequence
+    cy.get('[data-cy="display-container"]')
+      .should('be.visible')
+      .trigger('dragstart', {
+        dataTransfer: mockDataTransfer,
+        force: true
+      })
+      .trigger('dragenter', {
+        dataTransfer: mockDataTransfer,
+        force: true
+      })
+      .trigger('dragover', { 
+        dataTransfer: mockDataTransfer,
+        clientX: 100,
+        clientY: 100,
+        force: true
+      })
+      .trigger('drop', { 
+        dataTransfer: mockDataTransfer,
+        clientX: 100,
+        clientY: 100,
+        force: true
+      })
+      .trigger('dragend', {
+        dataTransfer: mockDataTransfer,
+        force: true
+      })
+      .wait(500) // Wait for widget to be added
+
+    // Find the widget and trigger hover
+    cy.get('.react-grid-item')
+      .first()
+      .trigger('mouseover')
+      .trigger('mouseenter')
+      .wait(300) // Wait for fade animation
+
+    // Now the controls should be visible
+    cy.get('.widget-controls')
+      .should('be.visible')
+      .within(() => {
+        cy.get('[data-cy^="delete-widget-"]')
+          .should('be.visible')
+          .click()
+      })
+
+    // Confirm deletion in dialog
+    cy.get('[data-cy="delete-dialog"]')
+      .should('be.visible')
+    
+    cy.contains('button', 'Delete')
+      .should('be.visible')
+      .click()
+
+    // Verify empty state is shown again
+    cy.get('[data-cy="empty-state"]')
+      .should('be.visible')
+  })
+
+```
+
+```tsx
    <Box className={`settings-container ${isExpanded ? 'expanded' : 'collapsed'}`}>
       <Box className={`settings-expanded-panel ${isExpanded ? 'expanded' : 'collapsed'}`}>
         <Box className={`settings-header ${isExpanded ? 'expanded' : 'collapsed'}`}>
